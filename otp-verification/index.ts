@@ -30,12 +30,12 @@ app.post("/otp",async (req,res) => {
     })
 
 })
-
+ 
 app.post("/verify",async(req,res) => {
 
     const {phone , otp } = req.body;
 
-    const savedOtp  = redis.get(otp_key(phone));
+    const savedOtp  = await redis.get(otp_key(phone));
 
     if(!savedOtp){
         return res.status(400).send({
@@ -43,12 +43,14 @@ app.post("/verify",async(req,res) => {
         })
     }
 
-    if(!savedOtp != otp){
+    if(!savedOtp != otp.toString()){
         return res.status(400).send({
             message : "Wrong OTP"
         })
     }
 
+
+    // jwt auth goes here before deleting otp
 
     await redis.del(otp_key(phone));
 
